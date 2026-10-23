@@ -13,7 +13,7 @@ import { SettingsSection } from "spcr-settings";
 
 const settings = new SettingsSection("Cat Jam V2 Reborn", "catjam-v2-reborn-settings");
 
-const ASSET_BASE = "https://github.com/arjun-gulati/spicetify-cat-jam-synced/raw/main/src/resources/";
+const ASSET_BASE = "https://github.com/arjun-gulati/catjam-v2-reborn/raw/main/src/resources/";
 
 // Native BPM = the tempo the character's loop was made at. Used to speed up /
 // slow down WebM characters. GIF characters cannot change speed, so for them
