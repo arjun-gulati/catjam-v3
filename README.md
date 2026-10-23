@@ -12,7 +12,17 @@
 >
 > If you like this, go star [BlafKing's original repo](https://github.com/BlafKing/spicetify-cat-jam-synced) and [FixeQD's Reborn](https://github.com/FixeQD/spicetify-cat-jam-synced-reborn) first. Thank you both!
 
-A meme character appears next to your progress bar and jams along with your music, bouncing on every real beat of the song, with its head drops steered onto the beat.
+A meme character appears next to your progress bar and jams along with your music — and since V3.1, the **animation itself** follows the beat: Bongo Cat bangs alternate arms on each beat, GIF-born characters were rebuilt as synced WebMs whose loops are phase-locked to the song's beat grid, and the classic cat's head drops are steered onto the beat. No fake squash-bounce on top (it's still available as an optional extra, off by default).
+
+## What's new in V3.1
+
+**Real beat sync for every character type**
+
+- **Pose stepping** — Bongo Cat and Pop Cat are still poses now, swapped on every beat from Spotify's audio analysis: left arm, right arm, left arm… exactly on the beat, at whatever tempo the song is.
+- **Phase-locked loops** — Maxwell, Chipi, Huh and Nyan Cat were converted from GIFs (a browser cannot change a GIF's timing) to WebMs that play at the tempo rate and get drift-corrected against the song's beat grid every few frames, so their loops land on the beat continuously.
+- **Sprite stepping** — the RGB sticker and Happy Cat keep their transparency as sprite sheets whose frames are stepped by the song's beat phase.
+- **Head-drop steering** (from V3) still drives the two WebM cats.
+- **Bounce demoted** — the old squash-and-stretch bounce is off by default; turn it on in the right-click menu if you miss it.
 
 ## What's in V3
 
@@ -52,6 +62,12 @@ Spicetify Marketplace: search "Cat Jam V3", or install manually:
 - Spotify Settings (bottom): position (player / left library), left-library size, custom URL and its native BPM
 
 # Changelog
+
+<h3>v3.1.0</h3>
+
+- Real beat sync: pose stepping (Bongo arms alternate per beat, Pop Cat pops per beat), phase-locked WebM loops for Maxwell / Chipi / Huh / Nyan, sprite stepping for the RGB sticker and Happy Cat
+- GIF characters converted to WebM / sprite sheets so timing is controllable at all
+- Squash bounce is now an optional extra, off by default
 
 <h3>v3.0.0 (Cat Jam V3)</h3>
 
