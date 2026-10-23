@@ -1,6 +1,6 @@
 {
-  "name": "cat-jam-v2-reborn",
-  "version": "2.0.0",
+  "name": "cat-jam-v3",
+  "version": "3.0.0",
   "private": true,
   "scripts": {
     "build": "spicetify-creator",

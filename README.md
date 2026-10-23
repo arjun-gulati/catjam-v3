@@ -1,67 +1,71 @@
-# Cat Jam V2 Reborn
+# Cat Jam V3
 
 ![preview](marketplace/preview.gif)
 
-> ## 🙏 Huge thanks to the original creator
+> ## 🙏 Huge thanks to the original creators
 >
 > **This is a fork. All credit for the original Cat-Jam Synced goes to [BlafKing](https://github.com/BlafKing).**
 >
 > Original project: **[github.com/BlafKing/spicetify-cat-jam-synced](https://github.com/BlafKing/spicetify-cat-jam-synced)**
 >
-> V2 Reborn only adds a character library and stronger beat sync on top of his work. If you like this, go star [his original repo](https://github.com/BlafKing/spicetify-cat-jam-synced) first. Thank you, BlafKing!
+> **V3's extra features were inspired by [FixeQD](https://github.com/FixeQD)'s [Cat-Jam Synced (Reborn)](https://github.com/FixeQD/spicetify-cat-jam-synced-reborn)** — head-drop sync, party mode, the debug overlay, local file import and the drops editor were popularised there. They are re-implemented here from scratch (no code copied; Reborn is GPL-3.0, this fork stays MIT like the original).
+>
+> If you like this, go star [BlafKing's original repo](https://github.com/BlafKing/spicetify-cat-jam-synced) and [FixeQD's Reborn](https://github.com/FixeQD/spicetify-cat-jam-synced-reborn) first. Thank you both!
 
+A meme character appears next to your progress bar and jams along with your music, bouncing on every real beat of the song, with its head drops steered onto the beat.
 
-A meme character appears next to your progress bar and jams along with your music, bouncing on every real beat of the song.
+## What's in V3
 
-Fork of [BlafKing/spicetify-cat-jam-synced](https://github.com/BlafKing/spicetify-cat-jam-synced), rebuilt as V2.
+**Character library (from V2)**
+Right-click the cat in the player and pick your jammer: Classic Cat Jam, RGB Cat Jam (the same cat in cycling RGB colours, WebM + transparent sticker), Maxwell, Bongo Cat, Pop Cat, Chipi Chipi Chapa Chapa Cat, Happy Happy Happy Cat, Huh Cat, Nyan Cat, a local file from your computer, or your own custom URL. Left-click the cat to cycle. Random character every song is in the menu too.
 
-## What's new in V2 Reborn
+**Head-drop sync (new in V3)**
+For WebM characters the playback rate is continuously steered, smoothly, so the character's next head drop lands exactly on the next music beat (rate follows time-until-drop ÷ time-until-beat, clamped and blended with the tempo rate so it never jerks). The classic cat's drop grid was measured from the source animation; any video can be retuned in the drops editor.
 
-**Character library (not just one cat)**
-Right-click the cat in the player and pick your jammer:
+**Party mode (new in V3)**
+On fast and loud sections (130+ BPM and −10 dB or louder) the cat goes rainbow with a glow, flashing on the beat. It switches itself off when the song calms down. Toggle in the right-click menu.
 
-- Classic Cat Jam (the original WebM)
-- RGB Cat Jam, the same cat with cycling RGB colours (bundled WebM, plus a small transparent sticker version)
-- Maxwell (spinning cat)
-- Bongo Cat
-- Pop Cat
-- Chipi Chipi Chapa Chapa Cat
-- Happy Happy Happy Cat
-- Huh Cat
-- Nyan Cat
-- Your own custom URL (GIF, WebP or WebM, set in Spotify Settings)
+**Debug overlay (new in V3)**
+Shift+click the cat: live track tempo and instant BPM, beat accuracy over the last 50 beats, drift in ms, next-beat countdown, segment loudness, current → target playback rate, party state, FPS.
 
-Left-click the cat to cycle to the next character. There is also a "Random character every song" option in the right-click menu.
+**Drops editor (new in V3)**
+In the right-click menu. Set the first head drop and the gap between drops for the current video; duration is read from the video itself. Saving retunes the sync for that character.
 
-**Real beat sync**
-V1 only sped the video up or down to match the track BPM, which was easy to miss. V2 uses Spotify's audio analysis for the exact song:
+**Local file import (new in V3)**
+Pick a .webm / .gif / .webp from your computer in the right-click menu, no hosting needed. Files up to about 3.5 MB are kept across restarts; bigger files work until Spotify restarts.
 
-- The character bounces (squash and stretch) on every analysed beat, timed against the live player progress, with drift correction
-- A bigger bounce on every bar, and WebM characters re-sync their loop on the bar, so sync cannot drift away
-- Bounces hit harder on loud sections and softer on quiet ones (segment loudness)
-- If a track has no analysis yet, a beat grid is synthesised from its tempo so the bounce still happens
-- Beat modes in the right-click menu: Subtle, Full Jam (default), Chaos, Off
+**Also from V2**
+Per-beat squash-and-stretch bounce from Spotify's own audio analysis (beats, bars, segments, loudness), bounce intensity slider, tempo-grid fallback when a track has no analysis, seamless track changes (no forced video restart), smooth loop point, and seek-only re-anchoring.
 
 ## Install
 
-Spicetify Marketplace: search "Cat Jam V2 Reborn", or install manually:
+Spicetify Marketplace: search "Cat Jam V3", or install manually:
 
 1. Copy `marketplace/cat-jam.js` to your Spicetify `Extensions` folder
 2. Run `spicetify config extensions cat-jam.js` and `spicetify apply`
 
-## Settings
+## Controls
 
-Position (player / left library), left-library size and the custom character URL live at the bottom of the regular Spotify settings. Character and beat mode are picked by right-clicking the cat itself, no settings trip needed.
+- **Right-click the cat**: character picker, beat modes, bounce intensity, party mode, drops editor, local file, debug toggle
+- **Left-click the cat**: next character
+- **Shift+click the cat**: debug overlay on/off
+- Spotify Settings (bottom): position (player / left library), left-library size, custom URL and its native BPM
 
 # Changelog
 
+<h3>v3.0.0 (Cat Jam V3)</h3>
+
+- Head-drop sync: continuous rate steering so head drops land on beats
+- Party mode: rainbow + glow auto-activates on fast, loud sections
+- Debug overlay (Shift+click): tempo, instant BPM, accuracy, drift, rates, FPS
+- Drops editor with automatic video duration
+- Local file import (WebM / GIF / WebP)
+- Bounce intensity slider; seamless track changes; smooth loop point
+- Renamed from Cat Jam V2 Reborn to Cat Jam V3 (FixeQD already had a "Reborn", so ours levels up instead)
+
 <h3>v2.0.0 (V2 Reborn)</h3>
 
-- Character library with right-click quick-pick menu and left-click cycling
-- RGB Cat Jam: the same cat in RGB colours
-- True beat sync: per-beat bounce from Spotify audio analysis, bar re-sync, loudness-scaled bounce, tempo-grid fallback
-- GIF and WebP characters supported alongside WebM
-- Renamed from Cat-Jam Synced to Cat Jam V2 Reborn
+- Character library with RGB Cat Jam, right-click picker, true per-beat bounce sync
 
 <h3>v1.2.5 and earlier</h3>
 

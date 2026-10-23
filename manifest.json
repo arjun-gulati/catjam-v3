@@ -1,8 +1,8 @@
 [
     {
-        "description": "Pick a meme character (right-click the cat), it jams on every real beat of your music. Fork of Cat-Jam Synced with a character library and true beat sync.",
+        "description": "Pick a meme character (right-click the cat), it jams on every real beat of your music. Character library, party mode, head-drop sync and debug overlay. V3 of Cat Jam V2 Reborn, built on BlafKing's Cat-Jam Synced.",
         "main": "marketplace/cat-jam.js",
-        "name": "Cat Jam V2 Reborn",
+        "name": "Cat Jam V3",
         "preview": "marketplace/preview.gif",
         "readme": "README.md",
         "authors": [
@@ -19,7 +19,8 @@
             "cat",
             "meme",
             "music",
-            "beat-sync"
+            "beat-sync",
+            "party"
         ]
     }
 ]
