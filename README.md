@@ -2,6 +2,15 @@
 
 ![preview](marketplace/preview.gif)
 
+> ## 🙏 Huge thanks to the original creator
+>
+> **This is a fork. All credit for the original Cat-Jam Synced goes to [BlafKing](https://github.com/BlafKing).**
+>
+> Original project: **[github.com/BlafKing/spicetify-cat-jam-synced](https://github.com/BlafKing/spicetify-cat-jam-synced)**
+>
+> V2 Reborn only adds a character library and stronger beat sync on top of his work. If you like this, go star [his original repo](https://github.com/BlafKing/spicetify-cat-jam-synced) first. Thank you, BlafKing!
+
+
 A meme character appears next to your progress bar and jams along with your music, bouncing on every real beat of the song.
 
 Fork of [BlafKing/spicetify-cat-jam-synced](https://github.com/BlafKing/spicetify-cat-jam-synced), rebuilt as V2.
