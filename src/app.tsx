@@ -1,7 +1,9 @@
 import { SettingsSection } from "spcr-settings";
 
 // ============================================================================
-// Cat Jam V3
+// Cat Jam V3.1 — real beat sync: the animation timing itself follows the
+// song's beats (pose stepping, phase-locked loops, head-drop steering).
+// Bounce is only an optional extra and off by default.
 // Character library + real beat sync, built on BlafKing's Cat-Jam Synced (MIT).
 // V3 adds clean-room implementations of the feature ideas popularised by
 // FixeQD's "Cat-Jam Synced (Reborn)": head-drop sync, party mode, a live
@@ -22,19 +24,25 @@ const ASSET_BASE = "https://github.com/arjun-gulati/catjam-v3/raw/main/src/resou
 // dropOffset / dropInterval describe the loop's head drops (seconds), measured
 // from the source animation: the classic cat drops its head once per native
 // beat (135.48 BPM = 0.4428s). The drops editor can retune any video.
+// Sync types (V3.1 - the animation itself follows the beat, no fake bounce):
+//  drops  = WebM whose playback rate is steered so head drops land on beats
+//  poses  = still poses swapped on every beat (Bongo arms alternate per beat)
+//  phase  = WebM phase-locked to the song's beat grid (tempo rate + drift seeks)
+//  sprite = sprite-sheet frames stepped by the song's beat phase (transparent)
+//  auto   = custom/local: video gets phase sync, images play natively
 const CHARACTERS = [
-    { id: "classic",   name: "Classic Cat Jam",        file: "catjam.webm",       type: "webm", bpm: 135.48, dropOffset: 0.10, dropInterval: 0.4428 },
-    { id: "rgb-webm",  name: "RGB Cat Jam (same cat)", file: "rgb-catjam.webm",   type: "webm", bpm: 135.48, dropOffset: 0.10, dropInterval: 0.4428 },
-    { id: "rgb-pixel", name: "RGB Cat Jam (sticker)",  file: "catjam-rainbow.gif", type: "gif", bpm: 113 },
-    { id: "maxwell",   name: "Maxwell (spinning cat)", file: "maxwell.gif",       type: "gif",  bpm: 122 },
-    { id: "bongo",     name: "Bongo Cat",              file: "bongo-cat.gif",     type: "gif",  bpm: 150 },
-    { id: "popcat",    name: "Pop Cat",                file: "popcat.gif",        type: "gif",  bpm: 108 },
-    { id: "chipi",     name: "Chipi Chipi Chapa Chapa Cat", file: "chipi-cat.gif", type: "gif", bpm: 120 },
-    { id: "happy",     name: "Happy Happy Happy Cat",  file: "happy-cat.gif",     type: "gif",  bpm: 127 },
-    { id: "huh",       name: "Huh Cat",                file: "huh-cat.gif",       type: "gif",  bpm: 100 },
-    { id: "nyan",      name: "Nyan Cat",               file: "nyan-cat.gif",      type: "gif",  bpm: 143 },
-    { id: "local",     name: "Local file (yours)",     file: "",                  type: "local", bpm: 135.48 },
-    { id: "custom",    name: "Custom URL (from Settings)", file: "",              type: "custom", bpm: 135.48 },
+    { id: "classic",   name: "Classic Cat Jam",        sync: "drops", file: "catjam.webm",    type: "webm", bpm: 135.48, dropOffset: 0.10, dropInterval: 0.4428 },
+    { id: "rgb-webm",  name: "RGB Cat Jam (same cat)", sync: "drops", file: "rgb-catjam.webm", type: "webm", bpm: 135.48, dropOffset: 0.10, dropInterval: 0.4428 },
+    { id: "rgb-pixel", name: "RGB Cat Jam (sticker)",  sync: "sprite", sheet: "rainbow-sheet.webp", frames: 106, cols: 11, frameW: 112, frameH: 112, beatsPerLoop: 8, bpm: 113 },
+    { id: "maxwell",   name: "Maxwell (spinning cat)", sync: "phase", file: "maxwell.webm",  type: "webm", bpm: 122 },
+    { id: "bongo",     name: "Bongo Cat",              sync: "poses", poses: ["bongo-pose0.webp", "bongo-pose1.webp"], bpm: 150 },
+    { id: "popcat",    name: "Pop Cat",                sync: "poses", poses: ["pop-pose0.webp", "pop-pose1.webp"], bpm: 108 },
+    { id: "chipi",     name: "Chipi Chipi Chapa Chapa Cat", sync: "phase", file: "chipi-cat.webm", type: "webm", bpm: 120 },
+    { id: "happy",     name: "Happy Happy Happy Cat",  sync: "sprite", sheet: "happy-sheet.webp", frames: 177, cols: 14, frameW: 128, frameH: 128, beatsPerLoop: 15, bpm: 127 },
+    { id: "huh",       name: "Huh Cat",                sync: "phase", file: "huh-cat.webm",   type: "webm", bpm: 100 },
+    { id: "nyan",      name: "Nyan Cat",               sync: "phase", file: "nyan-cat.webm", type: "webm", bpm: 143 },
+    { id: "local",     name: "Local file (yours)",     sync: "auto",  file: "",               type: "local", bpm: 135.48 },
+    { id: "custom",    name: "Custom URL (from Settings)", sync: "auto", file: "",             type: "custom", bpm: 135.48 },
 ];
 
 const BEAT_MODES = [
@@ -68,8 +76,10 @@ function getCharacter() {
     return CHARACTERS.find(c => c.id === id) || CHARACTERS[0];
 }
 function getBeatMode() {
-    const id = store.get("beat-mode", "full");
-    return BEAT_MODES.find(m => m.id === id) || BEAT_MODES[1];
+    // Bounce is an optional extra since V3.1 and OFF by default: the real
+    // sync is the animation timing itself, not a squash effect on top.
+    const id = store.get("beat-mode", "off");
+    return BEAT_MODES.find(m => m.id === id) || BEAT_MODES[3];
 }
 function getIntensity() {
     const v = Number(store.get("intensity", "100"));
@@ -88,6 +98,8 @@ function characterURL(character) {
     return ASSET_BASE + character.file;
 }
 function characterType(character, url) {
+    if (character.sync === "poses") return "poses";
+    if (character.sync === "sprite") return "sprite";
     if (character.id === "custom" || character.id === "local") {
         if (url.startsWith("data:")) return url.startsWith("data:image") ? "gif" : "webm";
         return /\.(gif|webp|png|apng)(\?|#|$)/i.test(url) ? "gif" : "webm";
@@ -145,6 +157,7 @@ const stats = {
     instantBpm: 0, recentBeatTimes: [] as number[],
     loudnessDb: null as any, nextBeatInMs: null as any,
     targetRate: 1, party: false, partyOffAt: 0,
+    spriteFrame: null as any, phaseDriftMs: null as any,
 };
 function recordBeatFired(driftMs) {
     stats.lastDriftMs = driftMs;
@@ -312,6 +325,70 @@ function setRate(media, rate) {
     stats.targetRate = r;
 }
 
+// Fractional beat position in the song, from the real analysis beats.
+// This is the master clock every character type syncs to.
+function beatFloat(progressSec) {
+    const beats = getBeats();
+    if (!beats.length) return 0;
+    const i = Math.max(0, beatIdx - 1);
+    const b = beats[Math.min(i, beats.length - 1)];
+    if (!b) return 0;
+    const frac = (progressSec - b.start) / (b.duration || 0.45);
+    return i + Math.min(1.5, Math.max(0, frac));
+}
+// Poses characters (Bongo, Pop): swap to the next pose on every beat.
+// beatIdx is the song's absolute beat count, so arms alternate in song time.
+function stepPosesOnBeat() {
+    const character = getCharacter();
+    if (character.sync !== "poses") return;
+    const media = currentMedia();
+    if (!media) return;
+    const idx = ((beatIdx - 1) % character.poses.length + character.poses.length) % character.poses.length;
+    const src = ASSET_BASE + character.poses[idx];
+    if (!media.src.endsWith(character.poses[idx])) media.src = src;
+}
+// Sprite characters: which frame of the sheet should be showing at the
+// song's current beat phase (one full loop spans beatsPerLoop beats).
+function stepSprite() {
+    const character = getCharacter();
+    const media = currentMedia();
+    if (!media) return;
+    const bpl = character.beatsPerLoop;
+    const pos = ((beatFloat(estimatedProgressMs() / 1000) % bpl) + bpl) % bpl / bpl;
+    const frame = Math.min(character.frames - 1, Math.floor(pos * character.frames));
+    const col = frame % character.cols;
+    const rows = Number(media.dataset.rows || Math.ceil(character.frames / character.cols));
+    const row = Math.floor(frame / character.cols);
+    const px = character.cols > 1 ? (col / (character.cols - 1)) * 100 : 0;
+    const py = rows > 1 ? (row / (rows - 1)) * 100 : 0;
+    const want = `${px}% ${py}%`;
+    if (media.style.backgroundPosition !== want) media.style.backgroundPosition = want;
+    stats.spriteFrame = frame;
+}
+// Phase characters (WebM converted from GIFs, and custom/local videos):
+// the video plays at the tempo rate, and its loop position is continuously
+// checked against where the song's beat grid says it should be; drift over
+// 150ms is corrected with a seek, so the motion locks to the beat.
+function phaseLock(progressSec) {
+    const media = currentMedia();
+    if (!media || media.tagName !== "VIDEO" || !media.duration || isNaN(media.duration)) return;
+    const character = getCharacter();
+    const rate = tempoRate();
+    setRate(media, rate);
+    const beatsPerLoop = (media.duration * characterBPM(character)) / 60;
+    if (!beatsPerLoop || beatsPerLoop <= 0) return;
+    const pos = ((beatFloat(progressSec) % beatsPerLoop) + beatsPerLoop) % beatsPerLoop / beatsPerLoop;
+    const expected = pos * media.duration;
+    let drift = expected - media.currentTime;
+    // Shortest circular distance (loops wrap)
+    if (drift > media.duration / 2) drift -= media.duration;
+    if (drift < -media.duration / 2) drift += media.duration;
+    stats.phaseDriftMs = Math.round(drift * 1000);
+    if (Math.abs(drift) > 0.15) {
+        try { media.currentTime = expected; } catch (e) {}
+    }
+}
+
 function beatTick() {
     stats.frames++;
     const nowFps = performance.now();
@@ -346,17 +423,21 @@ function beatTick() {
     if (firedBeat && beatCountFired === 1) {
         recordBeatFired(Math.round((progressSec - beatStart) * 1000));
         pulse(loudnessFactorAt(beatStart), firedBar);
+        stepPosesOnBeat();
     } else if (firedBar) {
         pulse(loudnessFactorAt(progressSec), true);
     }
     updateParty(progressSec);
+    const syncType = getCharacter().sync;
+    if (syncType === "sprite") stepSprite();
     if (now - lastRateSteer > 90) {
         lastRateSteer = now;
-        steerRateToDrops(progressSec);
+        if (syncType === "drops") steerRateToDrops(progressSec);
+        else if (syncType === "phase" || syncType === "auto") phaseLock(progressSec);
     }
-    // Smooth loop: jump just before the end instead of native-loop stutter
+    // Smooth loop for drops-synced videos (phase videos wrap via the beat grid)
     const media = currentMedia();
-    if (media && media.tagName === "VIDEO" && media.duration && media.currentTime > media.duration - 0.15) {
+    if (getCharacter().sync === "drops" && media && media.tagName === "VIDEO" && media.duration && media.currentTime > media.duration - 0.15) {
         try { media.currentTime = 0.02; } catch (e) {}
     }
     renderDebug();
@@ -408,6 +489,7 @@ function renderDebug(force = false) {
         `CAT JAM V3 · DEBUG\n` +
         `track      ${track ? String(track).slice(0, 26) : "-"}\n` +
         `character  ${getCharacter().name}\n` +
+        `sync       ${getCharacter().sync}${stats.phaseDriftMs !== null && getCharacter().sync === "phase" ? " · phase drift " + stats.phaseDriftMs + " ms" : ""}${getCharacter().sync === "sprite" ? " · frame " + stats.spriteFrame : ""}\n` +
         `tempo      ${audioData?.track?.tempo ? Math.round(audioData.track.tempo) : "-"} BPM · instant ${stats.instantBpm || "-"}\n` +
         `beat acc   ${acc === null ? "-" : acc + "%"} (last 50 beats)\n` +
         `drift      ${stats.lastDriftMs === null ? "-" : stats.lastDriftMs + " ms"}\n` +
@@ -435,7 +517,21 @@ function buildMediaElement(character) {
     const url = characterURL(character);
     const type = characterType(character, url);
     let media;
-    if (type === "gif") {
+    if (type === "poses") {
+        media = document.createElement("img");
+        media.src = ASSET_BASE + character.poses[0];
+        media.alt = character.name;
+        // Preload the other poses so beat swaps never flicker
+        for (const p of character.poses) { const pre = new Image(); pre.src = ASSET_BASE + p; }
+    } else if (type === "sprite") {
+        media = document.createElement("div");
+        const rows = Math.ceil(character.frames / character.cols);
+        media.style.backgroundImage = `url("${ASSET_BASE + character.sheet}")`;
+        media.style.backgroundRepeat = "no-repeat";
+        media.style.backgroundSize = `${character.cols * 100}% ${rows * 100}%`;
+        media.style.backgroundPosition = "0% 0%";
+        media.dataset.rows = String(rows);
+    } else if (type === "gif") {
         media = document.createElement("img");
         media.src = url;
         media.alt = character.name;
@@ -629,7 +725,15 @@ function menuRow({ label, thumbCharacter, checked, bold, onClick }) {
         const url = characterURL(thumbCharacter);
         const type = characterType(thumbCharacter, url);
         let thumb;
-        if (type === "gif") { thumb = document.createElement("img"); thumb.src = url; }
+        if (type === "poses") { thumb = document.createElement("img"); thumb.src = ASSET_BASE + thumbCharacter.poses[0]; }
+        else if (type === "sprite") {
+            thumb = document.createElement("div");
+            const rows = Math.ceil(thumbCharacter.frames / thumbCharacter.cols);
+            thumb.style.backgroundImage = `url("${ASSET_BASE + thumbCharacter.sheet}")`;
+            thumb.style.backgroundSize = `${thumbCharacter.cols * 100}% ${rows * 100}%`;
+            thumb.style.backgroundPosition = "0% 0%";
+        }
+        else if (type === "gif") { thumb = document.createElement("img"); thumb.src = url; }
         else {
             thumb = document.createElement("video");
             thumb.src = url; thumb.muted = true; thumb.loop = true; thumb.autoplay = true; thumb.setAttribute("playsinline", "true");
@@ -684,7 +788,7 @@ function openMenu(x, y) {
     menu.appendChild(menuRow({ label: "🎯 Drops editor (sync this video)…", onClick: () => { closeMenu(); openDropsEditor(); } }));
 
     menu.appendChild(menuDivider());
-    menu.appendChild(menuHeading("Beat sync"));
+    menu.appendChild(menuHeading("Extra bounce (sync is in the animation)"));
     const modeId = getBeatMode().id;
     for (const mode of BEAT_MODES) {
         menu.appendChild(menuRow({
